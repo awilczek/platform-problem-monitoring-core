@@ -51,13 +51,14 @@ def extract_fields(logstash_file: str, output_file: str) -> None:
                     # Extract message from _source
                     source = doc.get("_source", {})
                     message = source.get("message", "")
+                    stack_hash = source.get("stackHash", "")
 
                     if not message:
                         skipped_count += 1
                         continue
 
                     # Write extracted fields to output file as JSON
-                    extracted = {"index": index_name, "id": doc_id, "message": message}
+                    extracted = {"index": index_name, "id": doc_id, "message": message, "stack_hash": stack_hash}
                     f.write(json.dumps(extracted) + "\n")
                     processed_count += 1
 

@@ -293,12 +293,13 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
     index_name = doc.get("index", "unknown")
     doc_id = doc.get("id", "unknown")
     message = doc.get("message", "")
+    stack_hash = doc.get("stackHash", "")
 
     if not message:
         return False
 
     # Apply custom pre-processing to the message
-    processed_message = preprocess_log_line(message)
+    processed_message = preprocess_log_line(message) + ((":" + stack_hash) if stack_hash else "")
 
     # Add to template miner
     result = template_miner.add_log_message(processed_message)
