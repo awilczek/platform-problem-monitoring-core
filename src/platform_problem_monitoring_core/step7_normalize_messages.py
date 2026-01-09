@@ -301,13 +301,13 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
     # Apply custom pre-processing to the message
     processed_message = preprocess_log_line(message) + ((":" + stack_hash) if stack_hash else "")
 
-    logger.info(f"DEBUG stack_hash: {stack_hash} processed_message: {processed_message}")
-
     # Add to template miner
     result = template_miner.add_log_message(processed_message)
 
     # Store the document ID with its template
     template_id = result["cluster_id"]
+    logger.info(f"DEBUG processed_message: {processed_message} template_id: {template_id}")
+
     if template_id not in pattern_doc_references:
         pattern_doc_references[template_id] = []
 
