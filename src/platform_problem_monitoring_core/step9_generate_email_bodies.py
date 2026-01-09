@@ -392,45 +392,54 @@ def generate_sample_links_html(
         "dark-sample-link-item-template" if dark_mode else "sample-link-item-template", ""
     )
 
-    sample_links_list = ""
+    sample_links_full_list = ""
 
-    for j, doc_ref in enumerate(pattern["sample_doc_references"][:5], 1):
-        # Handle doc_ref as a string in format "index:id"
-        if isinstance(doc_ref, str) and ":" in doc_ref:
-            parts = doc_ref.split(":", 1)
-            index = parts[0]
-            doc_id = parts[1]
-        else:
-            # Handle as dictionary if it's not a string
-            index = doc_ref.get("index", "") if isinstance(doc_ref, dict) else ""
-            doc_id = doc_ref.get("id", "") if isinstance(doc_ref, dict) else ""
+    for i, stack_hash in enumerate(list(pattern["sample_doc_references"].keys()), 1):
+        sample_links_list = ""
 
-        if index and doc_id:
-            # Truncate very long IDs for URL length safety
-            if len(doc_id) > 100:
-                doc_id = doc_id[:100]
+        for j, doc_ref in enumerate(pattern["sample_doc_references"][stack_hash][:5], 1):
 
-            # Create a deep link to Kibana
-            if kibana_deeplink_structure:
-                # Use the new configurable deeplink structure
-                kibana_link = kibana_deeplink_structure.replace("{{index}}", index).replace("{{id}}", doc_id)
-            elif kibana_url:
-                # Fall back to old style if no deeplink structure but kibana_url is provided
-                kibana_link = f"{kibana_url}/app/discover#/doc/{index}/{doc_id}?_g=()"
+            # Handle doc_ref as a string in format "index:id"
+            if isinstance(doc_ref, str) and ":" in doc_ref:
+                parts = doc_ref.split(":", 1)
+                index = parts[0]
+                doc_id = parts[1]
             else:
-                # No valid link can be created
-                continue
+                # Handle as dictionary if it's not a string
+                index = doc_ref.get("index", "") if isinstance(doc_ref, dict) else ""
+                doc_id = doc_ref.get("id", "") if isinstance(doc_ref, dict) else ""
 
-            # Add the link to the list
-            link_html = sample_link_item_template.replace("{{KIBANA_LINK}}", kibana_link)
-            link_html = link_html.replace("{{INDEX}}", str(j))
-            link_html = link_html.replace(
-                "{{COMMA}}", ", " if j < min(5, len(pattern["sample_doc_references"])) else ""
-            )
-            sample_links_list += link_html
+            if index and doc_id:
+                # Truncate very long IDs for URL length safety
+                if len(doc_id) > 100:
+                    doc_id = doc_id[:100]
 
-    if sample_links_list:
-        return sample_links_template.replace("{{SAMPLE_LINKS_LIST}}", sample_links_list)
+                # Create a deep link to Kibana
+                if kibana_deeplink_structure:
+                    # Use the new configurable deeplink structure
+                    kibana_link = kibana_deeplink_structure.replace("{{index}}", index).replace("{{id}}", doc_id)
+                elif kibana_url:
+                    # Fall back to old style if no deeplink structure but kibana_url is provided
+                    kibana_link = f"{kibana_url}/app/discover#/doc/{index}/{doc_id}?_g=()"
+                else:
+                    # No valid link can be created
+                    continue
+
+                # Add the link to the list
+                link_html = sample_link_item_template.replace("{{KIBANA_LINK}}", kibana_link)
+                link_html = link_html.replace("{{INDEX}}", str(j))
+                link_html = link_html.replace(
+                    "{{COMMA}}", ", " if j < min(5, len(pattern["sample_doc_references"][stack_hash])) else ""
+                )
+                sample_links_list += link_html
+
+        if sample_links_list:
+            if not sample_links_full_list:
+                sample_links_full_list = "<div>" + stack_hash + " -> "
+            sample_links_full_list += sample_links_list + "<br>"
+
+    if sample_links_full_list:
+        return sample_links_template.replace("{{SAMPLE_LINKS_LIST}}", sample_links_full_list + "</div>")
     return ""
 
 
@@ -1213,7 +1222,8 @@ def generate_email_bodies(
         except Exception as e:
             logger.warning(f"Failed to embed trend chart: {str(e)}")
 
-    text = _generate_text_content(data)
+    # text = _generate_text_content(data)
+    text = ""
 
     # Write the email bodies to the output files
     with Path(html_output).open("w") as f:

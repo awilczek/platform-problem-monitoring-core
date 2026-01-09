@@ -4,7 +4,7 @@
 import argparse
 import json
 import sys
-from typing import List, TypedDict
+from typing import List, Dict, TypedDict
 
 try:
     from typing import NotRequired
@@ -20,10 +20,8 @@ class PatternDict(TypedDict):
     cluster_id: str
     count: int
     pattern: str
-    first_seen: str
-    last_seen: str
-    sample_log_lines: List[str]
-    sample_doc_references: List[str]
+    stack_hashes: List[str]
+    sample_doc_references: Dict[str, List[str]]
     # Fields required by step9_generate_email_bodies
     current_count: NotRequired[int]  # Current count (same as count for clarity)
     previous_count: NotRequired[int]  # Count from previous run
@@ -67,10 +65,8 @@ def _find_new_patterns(current_dict: dict, previous_dict: dict) -> List[PatternD
                 "cluster_id": pattern["cluster_id"],
                 "count": pattern["count"],
                 "pattern": pattern["pattern"],
-                "first_seen": pattern.get("first_seen", ""),
-                "last_seen": pattern.get("last_seen", ""),
-                "sample_log_lines": pattern.get("sample_log_lines", []),
-                "sample_doc_references": pattern.get("sample_doc_references", []),
+                "stack_hashes": pattern["stack_hashes"],
+                "sample_doc_references": pattern.get("sample_doc_references", {}),
             }
             new_patterns.append(new_pattern)
 
@@ -102,10 +98,8 @@ def _find_disappeared_patterns(current_dict: dict, previous_dict: dict) -> List[
                 "cluster_id": pattern["cluster_id"],
                 "count": pattern["count"],
                 "pattern": pattern["pattern"],
-                "first_seen": pattern.get("first_seen", ""),
-                "last_seen": pattern.get("last_seen", ""),
-                "sample_log_lines": pattern.get("sample_log_lines", []),
-                "sample_doc_references": pattern.get("sample_doc_references", []),
+                "stack_hashes": pattern["stack_hashes"],
+                "sample_doc_references": pattern.get("sample_doc_references", {}),
             }
             disappeared_patterns.append(disappeared_pattern)
 
@@ -152,10 +146,8 @@ def _find_increased_patterns(current_dict: dict, previous_dict: dict) -> List[Pa
                     "absolute_change": absolute_change,
                     "percent_change": percent_change,
                     "pattern": pattern_text,
-                    "first_seen": current_pattern.get("first_seen", ""),
-                    "last_seen": current_pattern.get("last_seen", ""),
-                    "sample_log_lines": current_pattern.get("sample_log_lines", []),
-                    "sample_doc_references": current_pattern.get("sample_doc_references", []),
+                    "stack_hashes": current_pattern["stack_hashes"],
+                    "sample_doc_references": current_pattern.get("sample_doc_references", {}),
                 }
                 increased_patterns.append(increased_pattern)
 
@@ -202,10 +194,8 @@ def _find_decreased_patterns(current_dict: dict, previous_dict: dict) -> List[Pa
                     "absolute_change": absolute_change,
                     "percent_change": percent_change,
                     "pattern": pattern_text,
-                    "first_seen": current_pattern.get("first_seen", ""),
-                    "last_seen": current_pattern.get("last_seen", ""),
-                    "sample_log_lines": current_pattern.get("sample_log_lines", []),
-                    "sample_doc_references": current_pattern.get("sample_doc_references", []),
+                    "stack_hashes": current_pattern["stack_hashes"],
+                    "sample_doc_references": current_pattern.get("sample_doc_references", {}),
                 }
                 decreased_patterns.append(decreased_pattern)
 

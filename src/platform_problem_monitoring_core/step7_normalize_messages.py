@@ -272,10 +272,8 @@ class PatternResult(TypedDict):
     cluster_id: str
     count: int
     pattern: str
-    first_seen: str
-    last_seen: str
-    sample_log_lines: List[str]
-    sample_doc_references: List[str]
+    stack_hashes: List[str]
+    sample_doc_references: Dict[str, List[str]]
 
 
 def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_references: dict) -> bool:
@@ -285,7 +283,7 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
     Args:
         doc: Document to process
         template_miner: Configured template miner
-        pattern_doc_references: Dictionary to store document references for each pattern
+        pattern_doc_references: Dictionary to store document references for each pattern+stockHash
 
     Returns:
         True if processing was successful, False otherwise
@@ -293,13 +291,13 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
     index_name = doc.get("index", "unknown")
     doc_id = doc.get("id", "unknown")
     message = doc.get("message", "")
-    stack_hash = doc.get("stack_hash", "")
+    stack_hash = doc.get("stack_hash", "no-stack")
 
     if not message:
         return False
 
     # Apply custom pre-processing to the message
-    processed_message = preprocess_log_line(message) + ((":" + stack_hash) if stack_hash else "")
+    processed_message = preprocess_log_line(message)
 
     # Add to template miner
     result = template_miner.add_log_message(processed_message)
@@ -309,13 +307,17 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
     logger.info(f"DEBUG processed_message: {processed_message} template_id: {template_id}")
 
     if template_id not in pattern_doc_references:
-        pattern_doc_references[template_id] = []
+        pattern_doc_references[template_id] = {}
+
+    if stack_hash not in pattern_doc_references[template_id]:
+        pattern_doc_references[template_id][stack_hash] = []
 
     # Add the doc ID and index to the lists, keeping only the 5 most recent
     doc_reference = f"{index_name}:{doc_id}"
-    pattern_doc_references[template_id].append(doc_reference)
-    if len(pattern_doc_references[template_id]) > 5:
-        pattern_doc_references[template_id].pop(0)
+    pattern_doc_references[template_id][stack_hash].append(doc_reference)
+
+    if len(pattern_doc_references[template_id][stack_hash]) > 5:
+        pattern_doc_references[template_id][stack_hash].pop(0)
 
     return True
 
@@ -339,7 +341,7 @@ def _prepare_results(template_miner: TemplateMiner, pattern_doc_references: dict
 
     Args:
         template_miner: The template miner instance.
-        pattern_doc_references: Dictionary mapping cluster IDs to document references.
+        pattern_doc_references: Dictionary mapping cluster IDs + stockHash to document references.
 
     Returns:
         List of pattern results.
@@ -356,14 +358,8 @@ def _prepare_results(template_miner: TemplateMiner, pattern_doc_references: dict
             "cluster_id": cluster_id,
             "count": cluster.size,
             "pattern": template,
-            "first_seen": (
-                pattern_doc_references.get(cluster_id, [""])[0] if pattern_doc_references.get(cluster_id, []) else ""
-            ),
-            "last_seen": (
-                pattern_doc_references.get(cluster_id, [""])[-1] if pattern_doc_references.get(cluster_id, []) else ""
-            ),
-            "sample_log_lines": (cluster.get_sample_logs() if hasattr(cluster, "get_sample_logs") else []),
-            "sample_doc_references": pattern_doc_references.get(cluster_id, []),
+            "stack_hashes": list(pattern_doc_references.get(cluster_id, {}).keys()),
+            "sample_doc_references": pattern_doc_references.get(cluster_id, {})
         }
         results.append(result)
 
@@ -387,8 +383,8 @@ def normalize_messages(fields_file: str, output_file: str) -> None:
     # Configure template miner
     template_miner = configure_template_miner()
 
-    # Dictionary to store document IDs for each template
-    pattern_doc_references: Dict[str, List[str]] = {}  # Changed from List[dict] to List[str]
+    # Dictionary to store document IDs for each template+stockHash
+    pattern_doc_references: Dict[str, Dict[str, List[str]]] = {}  # Changed from List[dict] to Dict[str, List[str]]
 
     try:
         # Process the input file
