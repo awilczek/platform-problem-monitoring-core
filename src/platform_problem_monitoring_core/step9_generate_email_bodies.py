@@ -435,8 +435,8 @@ def generate_sample_links_html(
 
         if sample_links_list:
             if not sample_links_full_list:
-                sample_links_full_list = "<div>" + stack_hash + " -> "
-            sample_links_full_list += sample_links_list + "<br>"
+                sample_links_full_list = "<div>"
+            sample_links_full_list += stack_hash + " -> " + sample_links_list + "<br>"
 
     if sample_links_full_list:
         return sample_links_template.replace("{{SAMPLE_LINKS_LIST}}", sample_links_full_list + "</div>")

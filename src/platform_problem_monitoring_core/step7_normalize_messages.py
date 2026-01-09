@@ -293,6 +293,9 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
     message = doc.get("message", "")
     stack_hash = doc.get("stack_hash", "no-stack")
 
+    if not stack_hash:
+        stack_hash = "no-stack"
+
     if not message:
         return False
 
