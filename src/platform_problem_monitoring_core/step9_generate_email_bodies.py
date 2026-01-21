@@ -1010,6 +1010,7 @@ def _prepare_email_data(comparison_file: str, norm_results_file: str) -> Dict[st
 
 
 def _generate_html_content(
+    cluster_id: str,
     data: Dict[str, Any],
     templates: Dict[str, str],
     kibana_url: Optional[str] = None,
@@ -1059,6 +1060,7 @@ def _generate_html_content(
     html = document_template
     html = html.replace("{{CSS_STYLES}}", f"<style>{css_styles}</style>")
     html = html.replace("{{TIMESTAMP}}", data["timestamp"])
+    html = html.replace("{{CLUSTER_ID}}", cluster_id)
     html = html.replace("{{CURRENT_PATTERNS_COUNT}}", str(data["current_patterns_count"]))
     html = html.replace("{{PREVIOUS_PATTERNS_COUNT}}", str(data["previous_patterns_count"]))
     html = html.replace("{{NEW_PATTERNS_COUNT}}", str(len(data["new_patterns"])))
@@ -1142,6 +1144,7 @@ This is an automated report from the Platform Problem Monitoring system.
 
 
 def generate_email_bodies(
+    cluster_id: str,
     comparison_file: str,
     norm_results_file: str,
     html_output: str,
@@ -1157,6 +1160,7 @@ def generate_email_bodies(
     Generate HTML and plaintext email bodies.
 
     Args:
+        cluster_id: Cluster ID
         comparison_file: Path to the comparison results file
         norm_results_file: Path to the normalization results file
         html_output: Path to store the HTML email body
@@ -1169,6 +1173,7 @@ def generate_email_bodies(
         start_date_time_file: Path to the file containing the start date time (optional)
     """
     logger.info("Generating email bodies")
+    logger.info(f"Cluster ID: {cluster_id}")
     logger.info(f"Comparison file: {comparison_file}")
     logger.info(f"Normalization results file: {norm_results_file}")
     logger.info(f"HTML output: {html_output}")
@@ -1203,7 +1208,7 @@ def generate_email_bodies(
         enhanced_kibana_url = _create_enhanced_kibana_url(kibana_url, elasticsearch_query_file, start_date_time_file)
 
     # Generate HTML and text content
-    html = _generate_html_content(data, templates, kibana_url, kibana_deeplink_structure, enhanced_kibana_url)
+    html = _generate_html_content(cluster_id, data, templates, kibana_url, kibana_deeplink_structure, enhanced_kibana_url)
 
     # Replace hours back placeholder
     html = html.replace("{{TREND_HOURS_BACK}}", str(trend_hours_back))
@@ -1238,6 +1243,7 @@ def generate_email_bodies(
 def main() -> None:
     """Execute the script when run directly."""
     parser = argparse.ArgumentParser(description="Generate email bodies")
+    parser.add_argument("--cluster-id", required=True, help="Cluster ID")
     parser.add_argument("--comparison-file", required=True, help="Path to the comparison results file")
     parser.add_argument("--norm-results-file", required=True, help="Path to the normalization results file")
     parser.add_argument("--html-output", required=True, help="Path to store the HTML email body")
@@ -1256,6 +1262,7 @@ def main() -> None:
 
     try:
         generate_email_bodies(
+            args.cluster_id,
             args.comparison_file,
             args.norm_results_file,
             args.html_output,

@@ -34,3 +34,5 @@ coverage.xml
 .ruff_cache/
 .coverage
 htmlcov/
+
+*.iml

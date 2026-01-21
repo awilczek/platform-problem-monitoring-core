@@ -65,6 +65,8 @@ This tool is ideal if:
 
 5. **Edit the configuration:**
    ```
+   CLUSTER_ID="your-cluster-id"
+   
    REMOTE_STATE_S3_BUCKET_NAME="your-s3-bucket"
    REMOTE_STATE_S3_FOLDER_NAME="platform-monitoring"
 

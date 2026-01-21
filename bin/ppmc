@@ -234,6 +234,7 @@ echo "Normalization results compared successfully"
 # Step 9: Generate email bodies
 echo "Step 9: Generating email bodies..."
 $PYTHON_CMD -m platform_problem_monitoring_core.step9_generate_email_bodies \
+    --cluster-id "$CLUSTER_ID" \
     --comparison-file "$COMPARISON_RESULTS_FILE" \
     --norm-results-file "$NORM_RESULTS_FILE" \
     --html-output "$HTML_EMAIL_BODY_FILE" \
