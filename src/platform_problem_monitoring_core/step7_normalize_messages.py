@@ -307,7 +307,6 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
 
     # Store the document ID with its template
     template_id = result["cluster_id"]
-    logger.info(f"DEBUG processed_message: {processed_message} template_id: {template_id}")
 
     if template_id not in pattern_doc_references:
         pattern_doc_references[template_id] = {}
