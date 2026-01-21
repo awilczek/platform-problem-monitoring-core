@@ -253,7 +253,7 @@ echo "Email bodies generated successfully"
 
 # Step 10: Send email report
 echo "Step 10: Sending email report..."
-EMAIL_SUBJECT="Platform Problem Monitoring Report $(date +"%Y-%m-%d")"
+EMAIL_SUBJECT="Platform Monitoring - $CLUSTER_ID - $(date +"%Y-%m-%d")"
 $PYTHON_CMD -m platform_problem_monitoring_core.step10_send_email_report \
     --html-file "$HTML_EMAIL_BODY_FILE" \
     --text-file "$TEXT_EMAIL_BODY_FILE" \
