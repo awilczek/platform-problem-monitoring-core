@@ -1053,7 +1053,7 @@ def _generate_html_content(
         data["decreased_patterns"][:10], kibana_url, kibana_deeplink_structure
     )
     top_patterns_html, top_patterns_dark_html = generate_pattern_list_html(
-        data["top_patterns"][:25], kibana_url, kibana_deeplink_structure
+        data["top_patterns"][:50], kibana_url, kibana_deeplink_structure
     )
 
     # Replace placeholders in the main template

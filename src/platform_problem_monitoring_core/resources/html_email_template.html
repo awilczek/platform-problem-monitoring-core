@@ -558,17 +558,23 @@ the code picks elements as needed. Linting this file makes no sense as it is gua
                         </div>
                     </div>
 
-                    <div class="card">
-                        <h2>PROBLEM MESSAGES TREND</h2>
-                        <p class="text-sm text-gray-500">Number of problem messages per hour over the past
-                            {{TREND_HOURS_BACK}} hours.</p>
-                        <div class="chart-container"
-                            style="margin: 20px 0; border-radius: 8px; overflow: hidden; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
-                            <!--TREND_CHART_PLACEHOLDER-->
-                        </div>
-                    </div>
+<!--                    <div class="card">-->
+<!--                        <h2>PROBLEM MESSAGES TREND</h2>-->
+<!--                        <p class="text-sm text-gray-500">Number of problem messages per hour over the past-->
+<!--                            {{TREND_HOURS_BACK}} hours.</p>-->
+<!--                        <div class="chart-container"-->
+<!--                            style="margin: 20px 0; border-radius: 8px; overflow: hidden; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">-->
+<!--                            &lt;!&ndash;TREND_CHART_PLACEHOLDER&ndash;&gt;-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                    {{KIBANA_BUTTON}}
+<!--                    {{KIBANA_BUTTON}}-->
+                </div>
+
+                <div class="card">
+                    <h2>TOP 50 CURRENT PROBLEM PATTERNS</h2>
+                    <p class="text-sm text-gray-500">The most frequent problem patterns in the current report.</p>
+                    {{TOP_PATTERNS_LIST}}
                 </div>
 
                 <div class="card">
@@ -594,12 +600,6 @@ the code picks elements as needed. Linting this file makes no sense as it is gua
                     <p class="text-sm text-gray-500">These patterns were present in the previous summary but are not in
                         the current one.</p>
                     {{DISAPPEARED_PATTERNS_LIST}}
-                </div>
-
-                <div class="card">
-                    <h2>TOP 25 CURRENT PROBLEM PATTERNS</h2>
-                    <p class="text-sm text-gray-500">The most frequent problem patterns in the current report.</p>
-                    {{TOP_PATTERNS_LIST}}
                 </div>
 
                 <div style="text-align: center; margin-top: 20px; color: #718096; font-size: 12px;">
