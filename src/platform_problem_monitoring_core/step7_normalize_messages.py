@@ -290,7 +290,7 @@ def _process_document(doc: dict, template_miner: TemplateMiner, pattern_doc_refe
     """
     index_name = doc.get("index", "unknown")
     doc_id = doc.get("id", "unknown")
-    message = doc.get("message", "")
+    message = doc.get("msgTemplate", "")
     stack_hash = doc.get("stack_hash", "no-stack")
 
     if not stack_hash:

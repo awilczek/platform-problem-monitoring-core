@@ -50,7 +50,7 @@ def extract_fields(logstash_file: str, output_file: str) -> None:
 
                     # Extract message from _source
                     source = doc.get("_source", {})
-                    message = source.get("message", "")
+                    message = source.get("msgTemplate", "")
                     stack_hash = source.get("stackHash", "")
 
                     if not message:
